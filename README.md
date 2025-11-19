@@ -68,7 +68,7 @@ The static assets end up in `dist/`.
    ```bash
    cd /var/www/portfolio
    git pull origin main
-   npm install --production
+   npm install
    npm run build
    sudo systemctl reload nginx
    ```
