@@ -1,6 +1,6 @@
 # Portfolio Quentin
 
-This repo contains the source for my personal portfolio built with Vite + React..
+This repo contains the source for my personal portfolio built with Vite + React.
 
 ## Prerequisites
 - Node.js 20+ and npm
@@ -39,7 +39,30 @@ The static assets end up in `dist/`.
    ```
 4. **Serve with Nginx (recommended)**
    - Install Nginx: `sudo apt install nginx -y`.
-   - Point a server block to `/var/www/portfolio/dist` with `try_files $uri /index.html` for SPA routing.
+   - Create `/etc/nginx/sites-available/portfolio` with the server block below and symlink it into `sites-enabled`:
+
+    ```nginx
+    server {
+       listen 80;
+       server_name your.domain.com;
+
+       root /var/www/portfolio/dist;
+       index index.html;
+
+       location / {
+          try_files $uri /index.html;
+          add_header Cache-Control "public, max-age=3600";
+       }
+
+       location ~* \.(js|css|png|jpe?g|gif|svg|webp)$ {
+          try_files $uri =404;
+          add_header Cache-Control "public, max-age=31536000, immutable";
+       }
+    }
+    ```
+
+   - Adjust `server_name` if you use a custom domain or `_` to listen for all hosts.
+   - Enable the config: `sudo ln -s /etc/nginx/sites-available/portfolio /etc/nginx/sites-enabled/portfolio`.
    - Reload Nginx: `sudo systemctl reload nginx`.
 5. **Update deployments**
    ```bash
