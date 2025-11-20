@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { X, CarFront, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
 
 const CAR_WIDTH = 40;
@@ -7,30 +7,6 @@ const MAX_SPEED = 10;
 const ACCELERATION = 0.2;
 const FRICTION = 0.92;
 const TURN_SPEED = 3.5;
-
-// Helper for skid marks (x/y are screen coordinates)
-const createSkidMark = (x, y, rotation, opacity = 0.5) => {
-  const mark = document.createElement('div');
-  mark.style.position = 'absolute';
-  mark.style.left = `${x}px`;
-  mark.style.top = `${y}px`;
-  mark.style.width = '4px';
-  mark.style.height = '4px';
-  mark.style.backgroundColor = '#333';
-  mark.style.borderRadius = '50%';
-  mark.style.opacity = opacity;
-  mark.style.transform = `rotate(${rotation}deg)`;
-  mark.style.pointerEvents = 'none';
-  mark.style.zIndex = '50'; // Behind car but above background
-  document.body.appendChild(mark);
-
-  // Fade out and remove
-  setTimeout(() => {
-    mark.style.transition = 'opacity 1s';
-    mark.style.opacity = '0';
-    setTimeout(() => mark.remove(), 1000);
-  }, 2000);
-};
 
 const CarGame = ({ onUpdate }) => {
   const [isMobile, setIsMobile] = useState(false);
@@ -43,6 +19,8 @@ const CarGame = ({ onUpdate }) => {
   }, []);
 
   const carRef = useRef(null);
+  const skidLayerRef = useRef(null);
+  const skidMarksRef = useRef([]);
   // Initial position state only
   const [initialPosition] = useState({ x: window.innerWidth / 2, y: window.innerHeight - 150 });
   
@@ -60,9 +38,60 @@ const CarGame = ({ onUpdate }) => {
     driftFactor: 0, // New drift factor
     keys: {}
   });
-
   const requestRef = useRef();
   const skidTimerRef = useRef(0); // Timer to limit skid mark creation rate
+
+  useEffect(() => {
+    if (isMobile) return;
+    const layer = document.createElement('div');
+    layer.style.position = 'fixed';
+    layer.style.inset = '0';
+    layer.style.pointerEvents = 'none';
+    layer.style.zIndex = '95';
+    layer.style.mixBlendMode = 'multiply';
+    document.body.appendChild(layer);
+    skidLayerRef.current = layer;
+
+    return () => {
+      skidMarksRef.current.forEach((mark) => mark.node.remove());
+      skidMarksRef.current = [];
+      if (skidLayerRef.current?.parentNode) {
+        skidLayerRef.current.parentNode.removeChild(skidLayerRef.current);
+      }
+      skidLayerRef.current = null;
+    };
+  }, [isMobile]);
+
+  const createSkidMark = useCallback((x, y, rotation, opacity = 0.5) => {
+    if (!skidLayerRef.current) return;
+    const mark = document.createElement('div');
+    mark.style.position = 'absolute';
+    mark.style.width = '5px';
+    mark.style.height = '14px';
+    mark.style.borderRadius = '999px';
+    mark.style.background = 'linear-gradient(180deg, rgba(20,20,20,0.6), rgba(20,20,20,0.15))';
+    mark.style.boxShadow = '0 6px 16px rgba(20,20,20,0.2)';
+    mark.style.opacity = '0';
+    mark.style.transform = `translate(${x}px, ${y - window.scrollY}px) rotate(${rotation}deg)`;
+    mark.style.transition = 'opacity 0.18s ease-out';
+    skidLayerRef.current.appendChild(mark);
+
+    const markObj = { node: mark, x, y, rotation };
+    skidMarksRef.current.push(markObj);
+
+    requestAnimationFrame(() => {
+      mark.style.opacity = `${opacity}`;
+    });
+
+    setTimeout(() => {
+      mark.style.transition = 'opacity 1s ease-out';
+      mark.style.opacity = '0';
+      setTimeout(() => {
+        mark.remove();
+        skidMarksRef.current = skidMarksRef.current.filter((item) => item !== markObj);
+      }, 1000);
+    }, 2000);
+  }, []);
 
   useEffect(() => {
     if (isMobile) return;
@@ -138,11 +167,10 @@ const CarGame = ({ onUpdate }) => {
       if (state.driftFactor > 0.5 && Math.abs(state.velocity) > 4) {
         skidTimerRef.current++;
         if (skidTimerRef.current % 3 === 0) { // Create mark every 3 frames
-        // Calculate rear wheel positions based on rotation using screen coordinates
-        const screenY = state.y - window.scrollY;
+        // Calculate rear wheel positions based on rotation using world coordinates
         const rad = state.rotation * Math.PI / 180;
         const rearX = state.x + CAR_WIDTH / 2;
-        const rearY = screenY + CAR_HEIGHT;
+        const rearY = state.y + CAR_HEIGHT;
             
             // Offset for left and right wheels
             const wheelOffset = 15;
@@ -227,6 +255,10 @@ const CarGame = ({ onUpdate }) => {
         carRef.current.style.transform = `translate(${state.x + shakeX}px, ${currentScreenY + shakeY}px) rotate(${state.rotation}deg) ${state.keys[' '] ? 'scale(1.1)' : 'scale(1)'}`;
       }
 
+      skidMarksRef.current.forEach((mark) => {
+        mark.node.style.transform = `translate(${mark.x}px, ${mark.y - window.scrollY}px) rotate(${mark.rotation}deg)`;
+      });
+
       // Optimized Light State Updates
       let newLightState = 'idle';
       if (state.velocity > 0.5) newLightState = 'forward';
@@ -250,7 +282,7 @@ const CarGame = ({ onUpdate }) => {
       cancelAnimationFrame(requestRef.current);
       html.style.scrollBehavior = originalScrollBehavior;
     };
-  }, [onUpdate, isMobile]);
+  }, [onUpdate, isMobile, createSkidMark]);
 
   if (isMobile) return null;
 
