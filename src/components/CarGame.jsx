@@ -8,7 +8,7 @@ const ACCELERATION = 0.2;
 const FRICTION = 0.92;
 const TURN_SPEED = 3.5;
 
-// Helper for skid marks
+// Helper for skid marks (x/y are screen coordinates)
 const createSkidMark = (x, y, rotation, opacity = 0.5) => {
   const mark = document.createElement('div');
   mark.style.position = 'absolute';
@@ -138,10 +138,11 @@ const CarGame = ({ onUpdate }) => {
       if (state.driftFactor > 0.5 && Math.abs(state.velocity) > 4) {
         skidTimerRef.current++;
         if (skidTimerRef.current % 3 === 0) { // Create mark every 3 frames
-            // Calculate rear wheel positions based on rotation
-            const rad = state.rotation * Math.PI / 180;
-            const rearX = state.x + CAR_WIDTH / 2;
-            const rearY = state.y + CAR_HEIGHT;
+        // Calculate rear wheel positions based on rotation using screen coordinates
+        const screenY = state.y - window.scrollY;
+        const rad = state.rotation * Math.PI / 180;
+        const rearX = state.x + CAR_WIDTH / 2;
+        const rearY = screenY + CAR_HEIGHT;
             
             // Offset for left and right wheels
             const wheelOffset = 15;
