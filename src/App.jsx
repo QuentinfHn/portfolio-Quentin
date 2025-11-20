@@ -8,7 +8,7 @@ import CarGame from './components/CarGame';
 const projectImagesGlob = import.meta.glob([
   './assets/projects/**/*.{png,jpg,jpeg,webp,svg}',
   './assets/projects/**/*.{PNG,JPG,JPEG,WEBP,SVG}'
-], { eager: true, as: 'url' });
+], { eager: true, import: 'default', query: '?url' });
 
 const workImagesGlob = import.meta.glob([
   './assets/work-photos/*.png', './assets/work-photos/*.PNG',
@@ -16,7 +16,7 @@ const workImagesGlob = import.meta.glob([
   './assets/work-photos/*.jpeg', './assets/work-photos/*.JPEG',
   './assets/work-photos/*.webp', './assets/work-photos/*.WEBP',
   './assets/work-photos/*.svg', './assets/work-photos/*.SVG'
-], { eager: true, as: 'url' });
+], { eager: true, import: 'default', query: '?url' });
 
 const getImagesForProject = (id) => {
   const images = [];
