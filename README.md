@@ -64,14 +64,17 @@ The static assets end up in `dist/`.
    - Adjust `server_name` if you use a custom domain or `_` to listen for all hosts.
    - Enable the config: `sudo ln -s /etc/nginx/sites-available/portfolio /etc/nginx/sites-enabled/portfolio`.
    - Reload Nginx: `sudo systemctl reload nginx`.
-5. **Update deployments**
+5. **Update deployments (safe pull)**
    ```bash
    cd /var/www/portfolio
-   git pull origin main
+   git fetch origin main
+   git reset --hard origin/main
+   git clean -fd
    npm install
    npm run build
    sudo systemctl reload nginx
    ```
+   The `reset` + `clean` combo drops any leftover build artifacts (like `dist/index.html`) so `git pull` never blocks on generated files.
 
 ## Cloudflare Tunnel + custom domain (optional)
 1. Install `cloudflared` on the Pi, run `cloudflared tunnel login`, and create a tunnel.
