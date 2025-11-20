@@ -40,6 +40,7 @@ const CarGame = ({ onUpdate }) => {
   });
   const requestRef = useRef();
   const skidTimerRef = useRef(0); // Timer to limit skid mark creation rate
+  const lastFrameTimeRef = useRef(performance.now());
 
   useEffect(() => {
     if (isMobile) return;
@@ -131,16 +132,20 @@ const CarGame = ({ onUpdate }) => {
     window.addEventListener('keydown', handleKeyDown, { passive: false });
     window.addEventListener('keyup', handleKeyUp);
 
-    const updateGame = () => {
+    const updateGame = (timestamp) => {
       const state = gameState.current;
+      const previous = lastFrameTimeRef.current ?? timestamp;
+      const deltaMs = Math.max(0, timestamp - previous);
+      const frameFactor = Math.min(2.5, deltaMs / (1000 / 60) || 1);
+      lastFrameTimeRef.current = timestamp;
       
       // Handling Input
       if (state.keys['ArrowUp'] || state.keys['w'] || state.keys['W']) {
-        state.velocity = Math.min(state.velocity + ACCELERATION, MAX_SPEED);
+        state.velocity = Math.min(state.velocity + ACCELERATION * frameFactor, MAX_SPEED);
       } else if (state.keys['ArrowDown'] || state.keys['s'] || state.keys['S']) {
-        state.velocity = Math.max(state.velocity - ACCELERATION, -MAX_SPEED / 2);
+        state.velocity = Math.max(state.velocity - ACCELERATION * frameFactor, -MAX_SPEED / 2);
       } else {
-        state.velocity *= FRICTION;
+        state.velocity *= Math.pow(FRICTION, frameFactor);
       }
 
       // Drifting Logic
@@ -155,11 +160,12 @@ const CarGame = ({ onUpdate }) => {
 
       if (Math.abs(state.velocity) > 0.1) {
         const turnMultiplier = 1 + (state.driftFactor * 0.5); // Turn faster when drifting
+        const rotationDelta = TURN_SPEED * frameFactor * Math.sign(state.velocity) * turnMultiplier;
         if (state.keys['ArrowLeft'] || state.keys['a'] || state.keys['A']) {
-          state.rotation -= TURN_SPEED * Math.sign(state.velocity) * turnMultiplier;
+          state.rotation -= rotationDelta;
         }
         if (state.keys['ArrowRight'] || state.keys['d'] || state.keys['D']) {
-          state.rotation += TURN_SPEED * Math.sign(state.velocity) * turnMultiplier;
+          state.rotation += rotationDelta;
         }
       }
 
@@ -188,8 +194,8 @@ const CarGame = ({ onUpdate }) => {
       // Add some "slide" when drifting by modifying the movement vector slightly
       const moveAngle = state.rotation - (state.driftFactor * 10 * (state.keys['ArrowLeft'] ? -1 : 1));
       
-      state.x += Math.sin(moveAngle * Math.PI / 180) * state.velocity;
-      state.y -= Math.cos(moveAngle * Math.PI / 180) * state.velocity;
+      state.x += Math.sin(moveAngle * Math.PI / 180) * state.velocity * frameFactor;
+      state.y -= Math.cos(moveAngle * Math.PI / 180) * state.velocity * frameFactor;
 
       // Boundary checks (bounce X)
       if (state.x < 0) { state.x = 0; state.velocity *= -0.5; }
@@ -274,6 +280,7 @@ const CarGame = ({ onUpdate }) => {
       requestRef.current = requestAnimationFrame(updateGame);
     };
 
+    lastFrameTimeRef.current = performance.now();
     requestRef.current = requestAnimationFrame(updateGame);
 
     return () => {
