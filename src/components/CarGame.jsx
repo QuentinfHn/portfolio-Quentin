@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { X, CarFront, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
 
 const CAR_WIDTH = 40;
@@ -10,6 +10,17 @@ const TURN_SPEED = 3.5;
 
 const CarGame = ({ onUpdate }) => {
   const [isMobile, setIsMobile] = useState(false);
+  const platformTuning = useMemo(() => {
+    if (typeof navigator === 'undefined') {
+      return { accel: 1, max: 1, frictionPower: 1 };
+    }
+    const ua = navigator.userAgent;
+    const isSafari = /Safari/i.test(ua) && !/Chrome/i.test(ua);
+    if (isSafari) {
+      return { accel: 1.35, max: 1.2, frictionPower: 0.7 };
+    }
+    return { accel: 1, max: 1, frictionPower: 1 };
+  }, []);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -140,12 +151,14 @@ const CarGame = ({ onUpdate }) => {
       lastFrameTimeRef.current = timestamp;
       
       // Handling Input
+      const adjustedMaxSpeed = MAX_SPEED * platformTuning.max;
+      const adjustedAcceleration = ACCELERATION * platformTuning.accel;
       if (state.keys['ArrowUp'] || state.keys['w'] || state.keys['W']) {
-        state.velocity = Math.min(state.velocity + ACCELERATION * frameFactor, MAX_SPEED);
+        state.velocity = Math.min(state.velocity + adjustedAcceleration * frameFactor, adjustedMaxSpeed);
       } else if (state.keys['ArrowDown'] || state.keys['s'] || state.keys['S']) {
-        state.velocity = Math.max(state.velocity - ACCELERATION * frameFactor, -MAX_SPEED / 2);
+        state.velocity = Math.max(state.velocity - adjustedAcceleration * frameFactor, -adjustedMaxSpeed / 2);
       } else {
-        state.velocity *= Math.pow(FRICTION, frameFactor);
+        state.velocity *= Math.pow(FRICTION, frameFactor * platformTuning.frictionPower);
       }
 
       // Drifting Logic
@@ -289,7 +302,7 @@ const CarGame = ({ onUpdate }) => {
       cancelAnimationFrame(requestRef.current);
       html.style.scrollBehavior = originalScrollBehavior;
     };
-  }, [onUpdate, isMobile, createSkidMark]);
+  }, [onUpdate, isMobile, createSkidMark, platformTuning]);
 
   if (isMobile) return null;
 
