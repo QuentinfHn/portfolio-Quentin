@@ -376,7 +376,7 @@ function App() {
         <div className="pointer-events-auto flex items-center gap-6 px-6 py-3 bg-white/30 backdrop-blur-md rounded-full shadow-sm border border-white/40 hover:bg-white/50 transition-all duration-300">
           <span className="font-bold tracking-tight text-slate-900">QUENTIN</span>
           <div className="w-px h-4 bg-slate-900/10" />
-          <a href="mailto:contact@example.com" className="text-sm font-medium text-slate-700 hover:text-primary-700 transition-colors">
+          <a href="mailto:hello@quentinfabrie.nl" className="text-sm font-medium text-slate-700 hover:text-primary-700 transition-colors">
             Contact
           </a>
         </div>
