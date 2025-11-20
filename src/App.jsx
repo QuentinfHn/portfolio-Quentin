@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
-import { ArrowDown, Github, Linkedin, Mail, ExternalLink, X } from 'lucide-react';
+import { ArrowDown, Github, Linkedin, Mail, ExternalLink, X, Car } from 'lucide-react';
+import CarGame from './components/CarGame';
 
 // --- Image Loading Logic ---
 // This automatically loads images from src/assets/projects/{id}/*.{jpg,png,etc}
@@ -257,11 +258,12 @@ const TimelineItem = ({ year, title, company, description }) => (
   </motion.div>
 );
 
-const WorkGallery = () => {
+const WorkGallery = ({ scrollRef }) => {
   const images = useMemo(() => getWorkImages(), []);
-  const containerRef = useRef(null);
+  const localRef = useRef(null);
+  const containerRef = scrollRef || localRef;
   const baseWidthRef = useRef(0);
-
+  
   // Fallback placeholders if no images are found
   const displayImages = images.length > 0 ? images : [
     "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop",
@@ -283,28 +285,54 @@ const WorkGallery = () => {
       if (!containerRef.current) return;
       const baseWidth = containerRef.current.scrollWidth / 3;
       baseWidthRef.current = baseWidth;
-      containerRef.current.scrollLeft = baseWidth;
-    };
-
-    const handleScroll = () => {
-      const containerEl = containerRef.current;
-      const baseWidth = baseWidthRef.current;
-      if (!containerEl || !baseWidth) return;
-
-      const left = containerEl.scrollLeft;
-      if (left <= baseWidth * 0.1) {
-        containerEl.scrollLeft = left + baseWidth;
-      } else if (left >= baseWidth * 2.9) {
-        containerEl.scrollLeft = left - baseWidth;
+      
+      // Initial position
+      if (containerRef.current.scrollLeft === 0) {
+          containerRef.current.scrollLeft = baseWidth;
       }
     };
 
-    setBaseWidth();
-    container.addEventListener('scroll', handleScroll);
+    // Auto-scroll animation
+    let animationFrameId;
+    let scrollPos = 0;
+
+    const animate = () => {
+      if (!containerRef.current) return;
+      
+      // Sync with DOM if external change detected (e.g. Car Game)
+      if (Math.abs(containerRef.current.scrollLeft - scrollPos) > 5) {
+        scrollPos = containerRef.current.scrollLeft;
+      }
+
+      // Scroll speed (pixels per frame) - reduced to 0.5 for smoother/slower animation
+      scrollPos += 0.5;
+      containerRef.current.scrollLeft = scrollPos;
+
+      const baseWidth = baseWidthRef.current;
+      if (baseWidth > 0) {
+        // Infinite scroll reset
+        if (scrollPos >= baseWidth * 2) {
+           scrollPos = baseWidth;
+           containerRef.current.scrollLeft = baseWidth;
+        } else if (scrollPos <= 0) {
+           scrollPos = baseWidth;
+           containerRef.current.scrollLeft = baseWidth;
+        }
+      }
+      
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    setTimeout(() => {
+        setBaseWidth();
+        if (containerRef.current) scrollPos = containerRef.current.scrollLeft;
+        animate();
+    }, 100);
+    
     window.addEventListener('resize', setBaseWidth);
 
     return () => {
-      container.removeEventListener('scroll', handleScroll);
+      cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', setBaseWidth);
     };
   }, [loopImages.length]);
@@ -313,12 +341,13 @@ const WorkGallery = () => {
     <div className="w-full py-10">
       <div
         ref={containerRef}
-        className="flex overflow-x-auto gap-6 px-6 md:px-20 pb-8 snap-x snap-mandatory hide-scrollbar"
+        className="flex overflow-x-hidden gap-6 px-6 md:px-20 pb-8"
+        style={{ scrollBehavior: 'auto' }}
       >
         {loopImages.map((img, index) => (
           <motion.div 
             key={index}
-            className="min-w-[80vw] max-w-[80vw] md:min-w-[640px] md:max-w-[640px] aspect-[4/3] rounded-3xl overflow-hidden shadow-lg relative group snap-center flex-shrink-0 border border-white/50 bg-slate-200 flex items-center justify-center"
+            className="min-w-[80vw] max-w-[80vw] md:min-w-[640px] md:max-w-[640px] aspect-[4/3] rounded-3xl overflow-hidden shadow-lg relative group flex-shrink-0 border border-white/50 bg-slate-200 flex items-center justify-center"
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
@@ -327,7 +356,7 @@ const WorkGallery = () => {
             <img 
               src={img} 
               alt={`Work ${index + 1}`} 
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              className="w-full h-full object-cover"
               loading="lazy"
               decoding="async"
             />
@@ -335,24 +364,49 @@ const WorkGallery = () => {
           </motion.div>
         ))}
       </div>
-      
-      <div className="flex justify-center gap-2 mt-4">
-        <div className="flex items-center gap-2 text-slate-400 text-sm font-medium bg-white/40 px-4 py-2 rounded-full backdrop-blur-sm">
-           <ArrowDown className="w-4 h-4 rotate-[-90deg]" /> Swipe voor meer
-        </div>
-      </div>
     </div>
   );
 };
 
 function App() {
   const [selectedProject, setSelectedProject] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 30,
     restDelta: 0.001
   });
+
+  const galleryRef = useRef(null);
+
+  const handleCarUpdate = ({ x, y, velocity, rotation }) => {
+    if (!galleryRef.current) return;
+
+    const galleryRect = galleryRef.current.getBoundingClientRect();
+    
+    // Check if car is vertically within the gallery area
+    // Reduced buffer to make it easier to "leave" the interaction zone
+    if (y + 70 > galleryRect.top - 50 && y < galleryRect.bottom + 50) {
+      // If car is moving horizontally, scroll the gallery
+      // We use the horizontal component of the velocity
+      const horizontalVelocity = Math.sin(rotation * Math.PI / 180) * velocity;
+      
+      if (Math.abs(horizontalVelocity) > 0.1) {
+        // Scroll in the direction of movement
+        // Reduced multiplier to prevent "too fast" scrolling
+        galleryRef.current.scrollLeft += horizontalVelocity * 1.5; 
+      }
+    }
+  };
 
   // Merge static data with dynamic images
   const projects = useMemo(() => {
@@ -363,7 +417,7 @@ function App() {
   }, []);
 
   return (
-    <div className="text-slate-900 font-sans selection:bg-primary-200 selection:text-primary-900 min-h-screen">
+    <div className="relative text-slate-900 font-sans selection:bg-primary-200 selection:text-primary-900 min-h-screen">
       <Background />
       
       <motion.div
@@ -404,15 +458,6 @@ function App() {
             Ik ben een <span className="font-medium text-slate-900">Videospecialist</span>, die naast werk <span className="font-medium text-slate-900">Technische Bedrijfskunde</span> studeert in Utrecht.
           </p>
         </motion.div>
-        
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5, duration: 1 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce"
-        >
-          <ArrowDown className="w-6 h-6 text-slate-400" />
-        </motion.div>
       </Section>
 
 
@@ -442,7 +487,7 @@ function App() {
         <div className="grid md:grid-cols-2 gap-12">
           <div>
             <Reveal>
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-8 text-slate-900">Ervaring</h2>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-8 text-slate-900">Werkervaring</h2>
             </Reveal>
             <div className="space-y-0">
               <TimelineItem 
@@ -465,7 +510,7 @@ function App() {
               />
             </div>
           </div>
-          
+
           <div>
             <Reveal>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-8 text-slate-900">Opleiding</h2>
@@ -510,10 +555,18 @@ function App() {
       <Section className="!px-0 !max-w-none">
         <div className="px-6 md:px-20 max-w-6xl mx-auto">
           <Reveal>
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-12 text-slate-900">Foto's van mijn werkzaamheden</h2>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 text-slate-900">Foto's van mijn werkzaamheden</h2>
           </Reveal>
+          {!isMobile && (
+            <Reveal delay={0.2}>
+              <p className="text-slate-500 mb-8 flex items-center gap-2">
+                <span className="inline-block p-1 bg-slate-200 rounded text-xs font-mono">Pijltjestoetsen</span>
+                om de auto te besturen en door de foto's te scrollen!
+              </p>
+            </Reveal>
+          )}
         </div>
-        <WorkGallery />
+        <WorkGallery scrollRef={galleryRef} />
       </Section>
 
       {/* Contact Section */}
@@ -560,6 +613,7 @@ function App() {
           />
         )}
       </AnimatePresence>
+      <CarGame onUpdate={handleCarUpdate} />
     </div>
   );
 }
