@@ -184,23 +184,23 @@ const CarGame = ({ onUpdate }) => {
         if (screenY < MARGIN_TOP) {
           const dist = MARGIN_TOP - screenY;
           const correction = Math.min(dist * 0.1, 15);
-          const scrollAmount = dy - correction;
+          let scrollAmount = dy - correction;
           
-          if (window.scrollY + scrollAmount > 0) {
-              window.scrollBy(0, scrollAmount);
-          } else {
-              window.scrollTo(0, 0);
+          // Only scroll upward when truly needed
+          if (scrollAmount < 0) {
+            const nextScroll = Math.max(window.scrollY + scrollAmount, 0);
+            window.scrollTo(0, nextScroll);
           }
         } else if (screenY > MARGIN_BOTTOM) {
           const dist = screenY - MARGIN_BOTTOM;
           const correction = Math.min(dist * 0.1, 15);
-          const scrollAmount = dy + correction;
+          let scrollAmount = dy + correction;
 
-          const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-          if (window.scrollY + scrollAmount < maxScroll) {
-              window.scrollBy(0, scrollAmount);
-          } else {
-              window.scrollTo(0, maxScroll);
+          // Only scroll downward when we actually need to push the car back into view
+          if (scrollAmount > 0) {
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            const nextScroll = Math.min(window.scrollY + scrollAmount, maxScroll);
+            window.scrollTo(0, nextScroll);
           }
         }
       }
