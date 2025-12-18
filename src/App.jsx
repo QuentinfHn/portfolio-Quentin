@@ -66,12 +66,11 @@ const PROJECTS_DATA = [
   }
 ];
 
+// ...existing code...
 const Background = () => (
-  <div className="fixed inset-0 -z-10 overflow-hidden bg-gradient-to-br from-indigo-100 via-purple-50 to-teal-50">
-    <div className="absolute top-[-10%] left-[-10%] w-[70%] h-[70%] bg-blue-400/30 rounded-full blur-[100px] animate-blob mix-blend-multiply" />
-    <div className="absolute top-[20%] right-[-10%] w-[60%] h-[60%] bg-purple-400/30 rounded-full blur-[100px] animate-blob animation-delay-2000 mix-blend-multiply" />
-    <div className="absolute bottom-[-20%] left-[20%] w-[60%] h-[60%] bg-pink-400/30 rounded-full blur-[100px] animate-blob animation-delay-4000 mix-blend-multiply" />
-    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.svg')] opacity-20 mix-blend-overlay"></div>
+  <div className="fixed inset-0 -z-10 bg-asphalt">
+    <div className="absolute inset-0 bg-[linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+    <div className="absolute inset-0 bg-noise opacity-20 mix-blend-overlay pointer-events-none" />
   </div>
 );
 
@@ -94,7 +93,7 @@ const Section = ({ children, className = "" }) => (
     variants={{
       visible: { transition: { staggerChildren: 0.1 } }
     }}
-    className={`py-20 md:py-32 flex flex-col justify-center px-6 md:px-20 max-w-6xl mx-auto relative z-10 rounded-3xl my-8 ${className}`}
+    className={`py-20 md:py-32 flex flex-col justify-center px-6 md:px-20 max-w-6xl mx-auto relative z-10 my-8 ${className}`}
   >
     {children}
   </motion.section>
@@ -104,28 +103,26 @@ const ProjectCard = ({ project, onClick }) => (
   <motion.div 
     layoutId={`card-container-${project.id}`}
     onClick={() => onClick(project)}
-    whileHover={{ y: -8, transition: { duration: 0.3 } }}
-    className="group relative bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-sm hover:shadow-xl border border-white/50 hover:border-primary-200 cursor-pointer overflow-hidden transition-all"
+    whileHover={{ y: -4, transition: { duration: 0.2 } }}
+    className="group relative bg-asphalt-light p-8 border border-white/10 hover:border-acid cursor-pointer overflow-hidden transition-colors"
   >
-    <div className="absolute inset-0 bg-gradient-to-br from-primary-50/30 via-transparent to-accent-50/30 opacity-100 transition-opacity duration-500" />
-    
     <div className="relative z-10">
       <div className="flex justify-between items-start mb-4">
-        <motion.h3 layoutId={`project-title-${project.id}`} className="text-2xl font-bold text-slate-800 group-hover:text-primary-600 transition-colors">
+        <motion.h3 layoutId={`project-title-${project.id}`} className="text-2xl font-display font-bold text-steel group-hover:text-acid transition-colors">
           {project.title}
         </motion.h3>
-        <div className="p-2 bg-white/50 rounded-full group-hover:bg-white group-hover:shadow-sm transition-all">
-            <ExternalLink className="w-5 h-5 text-slate-400 group-hover:text-primary-500 transition-colors" />
+        <div className="p-2 bg-white/5 rounded-full group-hover:bg-acid group-hover:text-asphalt transition-all">
+            <ExternalLink className="w-5 h-5 text-steel-dim group-hover:text-asphalt transition-colors" />
         </div>
       </div>
       
-      <p className="text-slate-600 mb-6 leading-relaxed line-clamp-3">
+      <p className="text-steel-dim mb-6 leading-relaxed line-clamp-3 font-light">
         {project.description}
       </p>
       
       <div className="flex flex-wrap gap-2">
         {project.tags.map((tag, index) => (
-          <span key={index} className="px-3 py-1 bg-white/60 text-slate-600 text-sm font-medium rounded-full border border-white/50 group-hover:border-primary-200 group-hover:bg-white/90 transition-colors">
+          <span key={index} className="px-3 py-1 bg-white/5 text-steel-dim text-sm font-medium border border-white/10 group-hover:border-acid/50 transition-colors">
             {tag}
           </span>
         ))}
@@ -145,7 +142,7 @@ const ProjectModal = ({ project, onClose }) => {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
         onClick={onClose}
-        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-asphalt/90 backdrop-blur-sm"
       />
       <motion.div 
         layoutId={`card-container-${project.id}`}
@@ -153,20 +150,20 @@ const ProjectModal = ({ project, onClose }) => {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 20, scale: 0.95 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+        className="relative w-full max-w-3xl bg-asphalt-light border border-white/10 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
       >
         <motion.button 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.2 } }}
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 bg-white/80 backdrop-blur rounded-full hover:bg-slate-100 transition-colors z-10"
+          className="absolute top-4 right-4 p-2 bg-white/5 hover:bg-acid hover:text-asphalt transition-colors z-10 rounded-full"
         >
-          <X className="w-6 h-6 text-slate-600" />
+          <X className="w-6 h-6 text-steel" />
         </motion.button>
 
         <div className="p-8 md:p-12 overflow-y-auto">
-          <motion.h3 layoutId={`project-title-${project.id}`} className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">{project.title}</motion.h3>
+          <motion.h3 layoutId={`project-title-${project.id}`} className="text-3xl md:text-4xl font-display font-bold text-steel mb-4">{project.title}</motion.h3>
           
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -175,19 +172,19 @@ const ProjectModal = ({ project, onClose }) => {
           >
             <div className="flex flex-wrap gap-2 mb-8">
               {project.tags.map((tag, index) => (
-                <span key={index} className="px-3 py-1 bg-primary-50 text-primary-700 text-sm rounded-full border border-primary-100">
+                <span key={index} className="px-3 py-1 bg-acid/10 text-acid text-sm border border-acid/20">
                   {tag}
                 </span>
               ))}
             </div>
 
-            <p className="text-xl text-slate-600 mb-8 leading-relaxed">
+            <p className="text-xl text-steel-dim mb-8 leading-relaxed font-light">
               {project.description}
             </p>
 
-            <div className="prose prose-slate max-w-none">
-              <h4 className="text-xl font-semibold text-slate-800 mb-4">Over dit project</h4>
-              <p className="text-slate-600 leading-relaxed mb-8">
+            <div className="prose prose-invert max-w-none">
+              <h4 className="text-xl font-display font-semibold text-steel mb-4">Over dit project</h4>
+              <p className="text-steel-dim leading-relaxed mb-8">
                 {project.longDescription}
               </p>
               
@@ -198,14 +195,14 @@ const ProjectModal = ({ project, onClose }) => {
                       key={idx}
                       src={img}
                       alt={`Project screenshot ${idx + 1}`}
-                      className="rounded-xl w-full object-cover shadow-md"
+                      className="w-full object-cover border border-white/10"
                       loading="lazy"
                       decoding="async"
                     />
                   ))}
                 </div>
               ) : (
-                <div className="w-full h-64 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 border-2 border-dashed border-slate-200">
+                <div className="w-full h-64 bg-white/5 flex items-center justify-center text-steel-dim border border-dashed border-white/10">
                   Nog geen afbeeldingen beschikbaar
                 </div>
               )}
@@ -245,16 +242,16 @@ const TimelineItem = ({ year, title, company, description }) => (
       hidden: { opacity: 0, x: -20 },
       visible: { opacity: 1, x: 0, transition: { duration: 0.5 } }
     }}
-    className="relative pl-8 pb-12 border-l-2 border-primary-100 last:pb-0 last:border-l-0"
+    className="relative pl-8 pb-12 border-l border-white/10 last:pb-0 last:border-l-0"
   >
-    <div className="absolute left-[-9px] top-0 w-4 h-4 bg-white border-4 border-primary-500 rounded-full shadow-sm" />
-    <span className="inline-block px-3 py-1 mb-2 text-xs font-bold tracking-wider text-primary-700 uppercase bg-primary-50 rounded-full">{year}</span>
-    <h3 className="text-xl font-bold text-slate-800 mb-1">{title}</h3>
-    <div className="text-slate-500 font-medium mb-3 flex items-center gap-2">
-      <span className="w-1.5 h-1.5 rounded-full bg-accent-400" />
+    <div className="absolute left-[-5px] top-0 w-2.5 h-2.5 bg-asphalt border border-acid rounded-full" />
+    <span className="inline-block px-3 py-1 mb-2 text-xs font-bold tracking-wider text-asphalt uppercase bg-acid">{year}</span>
+    <h3 className="text-xl font-display font-bold text-steel mb-1">{title}</h3>
+    <div className="text-steel-dim font-medium mb-3 flex items-center gap-2">
+      <span className="w-1.5 h-1.5 rounded-full bg-acid" />
       {company}
     </div>
-    <p className="text-slate-600 leading-relaxed">{description}</p>
+    <p className="text-steel-dim leading-relaxed font-light">{description}</p>
   </motion.div>
 );
 
@@ -347,7 +344,7 @@ const WorkGallery = ({ scrollRef }) => {
         {loopImages.map((img, index) => (
           <motion.div 
             key={index}
-            className="min-w-[80vw] max-w-[80vw] md:min-w-[640px] md:max-w-[640px] aspect-[4/3] rounded-3xl overflow-hidden shadow-lg relative group flex-shrink-0 border border-white/50 bg-slate-200 flex items-center justify-center"
+            className="min-w-[80vw] max-w-[80vw] md:min-w-[640px] md:max-w-[640px] aspect-[4/3] overflow-hidden relative group flex-shrink-0 border border-white/10 bg-asphalt-light flex items-center justify-center"
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
@@ -356,11 +353,11 @@ const WorkGallery = ({ scrollRef }) => {
             <img 
               src={img} 
               alt={`Work ${index + 1}`} 
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-all duration-500"
               loading="lazy"
               decoding="async"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-t from-asphalt/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           </motion.div>
         ))}
       </div>
@@ -417,20 +414,20 @@ function App() {
   }, []);
 
   return (
-    <div className="relative text-slate-900 font-sans selection:bg-primary-200 selection:text-primary-900 min-h-screen">
+    <div className="relative text-steel font-body selection:bg-acid selection:text-asphalt min-h-screen bg-asphalt">
       <Background />
       
       <motion.div
-        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 to-accent-500 origin-left z-50"
+        className="fixed top-0 left-0 right-0 h-1 bg-acid origin-left z-50"
         style={{ scaleX }}
       />
 
       {/* Navigation (Floating Pill) */}
       <nav className="fixed top-6 left-0 right-0 flex justify-center z-50 pointer-events-none">
-        <div className="pointer-events-auto flex items-center gap-6 px-6 py-3 bg-white/30 backdrop-blur-md rounded-full shadow-sm border border-white/40 hover:bg-white/50 transition-all duration-300">
-          <span className="font-bold tracking-tight text-slate-900">QUENTIN</span>
-          <div className="w-px h-4 bg-slate-900/10" />
-          <a href="mailto:hello@quentinfabrie.nl" className="text-sm font-medium text-slate-700 hover:text-primary-700 transition-colors">
+        <div className="pointer-events-auto flex items-center gap-6 px-6 py-3 bg-asphalt-light/80 backdrop-blur-md border border-white/10 hover:border-acid/50 transition-all duration-300">
+          <span className="font-display font-bold tracking-tight text-steel">QUENTIN</span>
+          <div className="w-px h-4 bg-white/10" />
+          <a href="mailto:hello@quentinfabrie.nl" className="text-sm font-medium text-steel-dim hover:text-acid transition-colors">
             Contact
           </a>
         </div>
@@ -441,11 +438,11 @@ function App() {
         <div className="mb-8">
           <BigTextReveal 
             text="Quentin" 
-            className="text-6xl md:text-9xl font-bold tracking-tighter text-slate-900 leading-none"
+            className="text-6xl md:text-9xl font-display font-bold tracking-tighter text-steel leading-none"
           />
           <BigTextReveal 
             text="Fabrie" 
-            className="text-6xl md:text-9xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-accent-600 leading-none"
+            className="text-6xl md:text-9xl font-display font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-acid-400 to-acid-600 leading-none"
           />
         </div>
         
@@ -454,8 +451,8 @@ function App() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.8 }}
         >
-          <p className="text-xl md:text-2xl text-slate-600 max-w-2xl font-light leading-relaxed">
-            Ik ben een <span className="font-medium text-slate-900">Videospecialist</span>, die naast werk <span className="font-medium text-slate-900">Technische Bedrijfskunde</span> studeert in Utrecht.
+          <p className="text-xl md:text-2xl text-steel-dim max-w-2xl font-light leading-relaxed">
+            Ik ben een <span className="font-medium text-acid">Videospecialist</span>, die naast werk <span className="font-medium text-acid">Technische Bedrijfskunde</span> studeert in Utrecht.
           </p>
         </motion.div>
       </Section>
@@ -465,16 +462,16 @@ function App() {
       <Section>
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <Reveal>
-            <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-8 text-slate-900">Over Mij</h2>
+            <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight mb-8 text-steel">Over Mij</h2>
           </Reveal>
           <div>
             <Reveal delay={0.2}>
-              <p className="text-lg md:text-xl text-slate-600 font-light leading-relaxed mb-6">
+              <p className="text-lg md:text-xl text-steel-dim font-light leading-relaxed mb-6">
               Mijn interesse ligt bij videotechniek. Ik vind het leuk om nieuwe producten te testen en te ontdekken hoe ik ze in de praktijk kan toepassen. Naast mijn studie Technische Bedrijfskunde leer ik veel tijdens mijn stage bij Axians én in mijn werk bij Ledlease, waar ik theorie en praktijk dagelijks combineer.
               </p>
             </Reveal>
             <Reveal delay={0.4}>
-              <p className="text-lg md:text-xl text-slate-600 font-light leading-relaxed">
+              <p className="text-lg md:text-xl text-steel-dim font-light leading-relaxed">
               Met een passie voor techniek en verbetering zoek ik steeds naar slimme, praktische oplossingen.
               </p>
             </Reveal>
@@ -487,7 +484,7 @@ function App() {
         <div className="grid md:grid-cols-2 gap-12">
           <div>
             <Reveal>
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-8 text-slate-900">Werkervaring</h2>
+              <h2 className="text-3xl md:text-4xl font-display font-bold tracking-tight mb-8 text-steel">Werkervaring</h2>
             </Reveal>
             <div className="space-y-0">
               <TimelineItem 
@@ -513,7 +510,7 @@ function App() {
 
           <div>
             <Reveal>
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-8 text-slate-900">Opleiding</h2>
+              <h2 className="text-3xl md:text-4xl font-display font-bold tracking-tight mb-8 text-steel">Opleiding</h2>
             </Reveal>
             <div className="space-y-0">
               <TimelineItem 
@@ -538,7 +535,7 @@ function App() {
       {/* Projects Section */}
       <Section>
         <Reveal>
-          <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-12 text-slate-900">Projecten</h2>
+          <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight mb-12 text-steel">Projecten</h2>
         </Reveal>
         <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-8">
           {projects.map((project) => (
@@ -555,12 +552,12 @@ function App() {
       <Section className="!px-0 !max-w-none">
         <div className="px-6 md:px-20 max-w-6xl mx-auto">
           <Reveal>
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 text-slate-900">Foto's van mijn werkzaamheden</h2>
+            <h2 className="text-3xl md:text-5xl font-display font-bold tracking-tight mb-4 text-steel">Foto's van mijn werkzaamheden</h2>
           </Reveal>
           {!isMobile && (
             <Reveal delay={0.2}>
-              <p className="text-slate-500 mb-8 flex items-center gap-2">
-                <span className="inline-block p-1 bg-slate-200 rounded text-xs font-mono">Pijltjestoetsen</span>
+              <p className="text-steel-dim mb-8 flex items-center gap-2">
+                <span className="inline-block p-1 bg-white/10 rounded text-xs font-mono text-acid">Pijltjestoetsen</span>
                 om de auto te besturen en door de foto's te scrollen!
               </p>
             </Reveal>
@@ -573,27 +570,27 @@ function App() {
       <Section>
         <div className="max-w-4xl">
           <Reveal>
-            <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-8 text-slate-900">Laten we samenwerken</h2>
+            <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight mb-8 text-steel">Laten we samenwerken</h2>
           </Reveal>
           <Reveal delay={0.2}>
-            <p className="text-xl md:text-3xl text-slate-600 font-light leading-relaxed mb-10">
+            <p className="text-xl md:text-3xl text-steel-dim font-light leading-relaxed mb-10">
               Heb je een project in gedachten of wil je gewoon hallo zeggen? Ik sta altijd open voor nieuwe uitdagingen.
             </p>
           </Reveal>
           
           <div className="flex gap-8">
             <Reveal delay={0.4}>
-              <a href="#" className="flex items-center gap-2 text-lg text-slate-600 hover:text-primary-600 transition-colors">
+              <a href="#" className="flex items-center gap-2 text-lg text-steel-dim hover:text-acid transition-colors">
                 <Mail className="w-5 h-5" /> Email
               </a>
             </Reveal>
             <Reveal delay={0.5}>
-              <a href="#" className="flex items-center gap-2 text-lg text-slate-600 hover:text-primary-600 transition-colors">
+              <a href="#" className="flex items-center gap-2 text-lg text-steel-dim hover:text-acid transition-colors">
                 <Github className="w-5 h-5" /> GitHub
               </a>
             </Reveal>
             <Reveal delay={0.6}>
-              <a href="#" className="flex items-center gap-2 text-lg text-slate-600 hover:text-primary-600 transition-colors">
+              <a href="#" className="flex items-center gap-2 text-lg text-steel-dim hover:text-acid transition-colors">
                 <Linkedin className="w-5 h-5" /> LinkedIn
               </a>
             </Reveal>
@@ -601,7 +598,7 @@ function App() {
         </div>
       </Section>
 
-      <footer className="py-8 text-center text-slate-400 text-sm">
+      <footer className="py-8 text-center text-steel-dim text-sm">
         &copy; 2025 Quentin. Alle rechten voorbehouden.
       </footer>
 
@@ -617,5 +614,6 @@ function App() {
     </div>
   );
 }
+// ...existing code...
 
 export default App;

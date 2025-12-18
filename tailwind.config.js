@@ -7,19 +7,28 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        display: ['Syne', 'sans-serif'],
+        body: ['Manrope', 'sans-serif'],
       },
       colors: {
-        primary: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          500: '#0ea5e9', // Sky blue
-          600: '#0284c7',
-          900: '#0c4a6e',
+        acid: {
+          DEFAULT: '#ccff00',
+          400: '#b3e600',
+          500: '#ccff00',
+          600: '#99cc00',
         },
-        accent: {
-          500: '#8b5cf6', // Violet
+        asphalt: {
+          DEFAULT: '#0a0a0a',
+          light: '#171717',
+          lighter: '#262626',
+        },
+        steel: {
+          DEFAULT: '#e5e5e5',
+          dim: '#a3a3a3',
         }
+      },
+      backgroundImage: {
+        'noise': "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E\")",
       },
       animation: {
         'blob': 'blob 7s infinite',
