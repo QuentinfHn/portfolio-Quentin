@@ -42,10 +42,10 @@ const PROJECTS_DATA = [
   },
   {
     id: 2,
-    title: "Portfolio 2024",
-    description: "Mijn vorige portfolio website, genomineerd voor diverse design awards vanwege de unieke navigatie.",
-    longDescription: "Een experimenteel project waarbij ik de grenzen van webanimaties heb opgezocht. Met behulp van WebGL en GSAP heb ik een unieke, vloeiende navigatie-ervaring gecreëerd die de gebruiker meeneemt op een reis door mijn werk. De focus lag op interactie en visuele impact.",
-    tags: ["Vue.js", "GSAP", "WebGL"],
+    title: "Pixelmapper.nl",
+    description: "Een project om het mappen van ledschermen te vereenvoudigen met een eenvoudige webinterface.",
+    longDescription: "Dit project is onstaan om het mapping proces te vereenvoudigen. Dit is gedaan door veel stappen de automatiseren en berekeningen te doen voor de gebruiker. Het resultaat is een gebruiksvriendelijke webapplicatie die gebruikers zonder training kunnen gebruiken om hun ledschemen te mappen.",
+    tags: ["Prisma","React", "TypeScript"],
     category: "WEB",
   },
   {
@@ -298,23 +298,15 @@ const TimelineItem = ({ year, title, company, description }) => (
 );
 
 // --- Work Gallery ---
-const WorkGallery = ({ scrollRef }) => {
+const WorkGallery = () => {
   const images = useMemo(() => getWorkImages(), []);
-  const localRef = useRef(null);
-  const containerRef = scrollRef || localRef;
+  const containerRef = useRef(null);
   const baseWidthRef = useRef(0);
 
-  const displayImages = images.length > 0 ? images : [
-    "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2070&auto=format&fit=crop"
-  ];
-
   const loopImages = useMemo(() => {
-    if (displayImages.length === 0) return [];
-    return [...displayImages, ...displayImages, ...displayImages];
-  }, [displayImages]);
+    if (images.length === 0) return [];
+    return [...images, ...images, ...images];
+  }, [images]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -428,19 +420,6 @@ function App() {
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
-
-  const galleryRef = useRef(null);
-
-  const handleCarUpdate = ({ x, y, velocity, rotation }) => {
-    if (!galleryRef.current) return;
-    const galleryRect = galleryRef.current.getBoundingClientRect();
-    if (y + 70 > galleryRect.top - 50 && y < galleryRect.bottom + 50) {
-      const horizontalVelocity = Math.sin(rotation * Math.PI / 180) * velocity;
-      if (Math.abs(horizontalVelocity) > 0.1) {
-        galleryRef.current.scrollLeft += horizontalVelocity * 1.5;
-      }
-    }
-  };
 
   const projects = useMemo(() => {
     return PROJECTS_DATA.map(p => ({ ...p, images: getImagesForProject(p.id) }));
@@ -675,12 +654,12 @@ function App() {
             <Reveal delay={0.2}>
               <p className="text-muted mb-8 flex items-center gap-2 text-sm">
                 <span className="inline-block px-2 py-1 bg-surface border border-surface-border rounded text-xs font-display font-medium text-accent-400">Pijltjestoetsen</span>
-                om de auto te besturen en door de foto's te scrollen
+                om de auto te besturen
               </p>
             </Reveal>
           )}
         </div>
-        <WorkGallery scrollRef={galleryRef} />
+        <WorkGallery />
       </Section>
 
       <div className="section-divider max-w-7xl mx-auto" />
@@ -757,7 +736,7 @@ function App() {
       </AnimatePresence>
 
       {/* Car Game */}
-      <CarGame onUpdate={handleCarUpdate} />
+      <CarGame />
     </div>
   );
 }
