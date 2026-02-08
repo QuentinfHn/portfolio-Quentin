@@ -32,8 +32,8 @@ export default {
         muted: '#6b6b7b',
       },
       animation: {
-        'marquee': 'marquee 25s linear infinite',
-        'marquee-reverse': 'marquee-reverse 25s linear infinite',
+        'marquee': 'marquee 100s linear infinite',
+        'marquee-reverse': 'marquee-reverse 100s linear infinite',
         'grain': 'grain 8s steps(10) infinite',
         'float': 'float 6s ease-in-out infinite',
         'glow-pulse': 'glow-pulse 2s ease-in-out infinite',

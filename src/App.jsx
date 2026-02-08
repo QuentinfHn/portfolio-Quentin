@@ -50,20 +50,12 @@ const PROJECTS_DATA = [
   },
   {
     id: 3,
-    title: "Task Manager App",
-    description: "Een minimalistische to-do applicatie met focus op deep work en productiviteit.",
-    longDescription: "Deze applicatie is gebouwd om gebruikers te helpen hun focus te behouden. Het minimalistische design verwijdert alle afleidingen. Features zijn onder andere een Pomodoro timer, taakprioritering en gedetailleerde statistieken over productiviteit.",
-    tags: ["React Native", "Firebase", "TypeScript"],
-    category: "APP",
-  },
-  {
-    id: 4,
-    title: "Dashboard Analytics",
-    description: "Real-time data visualisatie dashboard voor SaaS bedrijven.",
-    longDescription: "Een krachtig dashboard dat complexe datasets omzet in begrijpelijke visualisaties. Gebruikers kunnen real-time trends volgen, rapporten genereren en diep in de data duiken. Gebouwd met D3.js voor maximale flexibiliteit in grafieken.",
-    tags: ["D3.js", "React", "Node.js"],
+    title: "Web signing app",
+    description: "Een simpele webapplicatie om signing te sturen naar verschillende media players.",
+    longDescription: "Deze webapplicatie maakt het mogelijk om verschillende signing schermen uit te sturen. Dit is controleerbaar via de webpagina maar ook via companion. Plaatjes kunnen worden upgeload en worden automatisch opgelsagen op de server. Er is dan later de keuze om plaatjes of slideshows om het scherm af te spelen.",
+    tags: ["Novastar, Signing, react"],
     category: "WEB",
-  }
+  },
 ];
 
 // --- Grain Overlay ---
@@ -161,7 +153,7 @@ const ProjectCard = ({ project, onClick, index }) => (
     </div>
 
     {/* Content */}
-    <div className={`p-6 md:p-8 flex flex-col justify-end ${index === 0 ? 'min-h-[400px]' : 'min-h-[280px]'}`}>
+    <div className={`p-6 md:p-8 flex flex-col justify-end ${index === 0 ? 'min-h-[320px]' : 'min-h-[240px]'}`}>
       {/* Subtle glow */}
       <div className="absolute inset-0 bg-gradient-to-t from-accent-500/[0.05] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
@@ -376,7 +368,7 @@ const WorkGallery = () => {
             <img
               src={img}
               alt={`Work ${index + 1}`}
-              className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+              className="w-full h-full object-cover transition-all duration-700"
               loading="lazy"
               decoding="async"
             />
@@ -464,7 +456,7 @@ function App() {
 
       {/* Hero */}
       <main id="main">
-      <Section className="min-h-screen flex flex-col justify-center px-6 md:px-12 pt-24">
+      <Section className="min-h-[70vh] flex flex-col justify-center px-6 md:px-12 pt-20 pb-12">
         <div className="max-w-7xl mx-auto w-full">
           <motion.div
             initial={{ opacity: 0 }}
@@ -514,7 +506,7 @@ function App() {
       <Marquee text="AV SPECIALIST • DEVELOPER • VIDEOTECH" />
 
       {/* About */}
-      <Section className="py-24 md:py-40 px-6 md:px-12">
+      <Section className="py-16 md:py-24 px-6 md:px-12">
         <div className="max-w-7xl mx-auto">
           <Reveal>
             <div className="section-number mb-8">01 — Over mij</div>
@@ -548,7 +540,7 @@ function App() {
       <div className="section-divider max-w-7xl mx-auto" />
 
       {/* Experience & Education */}
-      <Section className="py-24 md:py-40 px-6 md:px-12">
+      <Section className="py-16 md:py-24 px-6 md:px-12">
         <div className="max-w-7xl mx-auto">
           <Reveal>
             <div className="section-number mb-8">02 — Ervaring</div>
@@ -613,7 +605,7 @@ function App() {
       <div className="section-divider max-w-7xl mx-auto" />
 
       {/* Projects */}
-      <Section className="py-24 md:py-40 px-6 md:px-12">
+      <Section className="py-16 md:py-24 px-6 md:px-12">
         <div className="max-w-7xl mx-auto">
           <Reveal>
             <div className="section-number mb-8">03 — Projecten</div>
@@ -640,7 +632,7 @@ function App() {
       <Marquee text="FOTO'S • WERKZAAMHEDEN • BEHIND THE SCENES" reverse />
 
       {/* Work Gallery */}
-      <Section className="py-16 md:py-24 !px-0 !max-w-none">
+      <Section className="py-12 md:py-16 !px-0 !max-w-none">
         <div className="px-6 md:px-12 max-w-7xl mx-auto">
           <Reveal>
             <div className="section-number mb-8">04 — Gallery</div>
@@ -665,7 +657,7 @@ function App() {
       <div className="section-divider max-w-7xl mx-auto" />
 
       {/* Contact */}
-      <Section className="py-24 md:py-40 px-6 md:px-12">
+      <Section className="py-16 md:py-24 px-6 md:px-12">
         <div className="max-w-7xl mx-auto">
           <Reveal>
             <div className="section-number mb-8">05 — Contact</div>
