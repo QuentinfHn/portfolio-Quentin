@@ -330,14 +330,14 @@ const CarGame = ({ onUpdate }) => {
             <div className="absolute -right-1 bottom-2 w-1.5 h-4 bg-black rounded-r-sm"></div>
             
             {/* Chassis */}
-            <div className="absolute inset-0 bg-blue-600 rounded-lg shadow-lg border-2 border-blue-800 overflow-hidden">
+            <div className="absolute inset-0 bg-[#6366F1] rounded-lg shadow-lg border-2 border-[#4F46E5] overflow-hidden">
               {/* Racing Stripes */}
-              <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-2 bg-white/90"></div>
+              <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-2 bg-white/80"></div>
               
               {/* Windshield */}
-              <div className="absolute top-4 left-1 right-1 h-5 bg-sky-900/80 rounded-sm"></div>
+              <div className="absolute top-4 left-1 right-1 h-5 bg-black/60 rounded-sm"></div>
               {/* Rear Window */}
-              <div className="absolute bottom-2 left-1 right-1 h-3 bg-sky-900/80 rounded-sm"></div>
+              <div className="absolute bottom-2 left-1 right-1 h-3 bg-black/60 rounded-sm"></div>
               
               {/* Headlights */}
               <div className={`absolute top-0 left-1 w-2 h-3 bg-yellow-200 rounded-b-sm blur-[1px] ${lightState === 'forward' ? 'animate-pulse' : ''}`}></div>
@@ -376,7 +376,7 @@ const CarGame = ({ onUpdate }) => {
           {/* Honk Visual */}
           {isHonking && (
             <div className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap z-20">
-              <span className="text-xs font-bold text-white bg-red-600 px-2 py-1 rounded-full shadow-lg animate-bounce">
+              <span className="text-xs font-bold text-white bg-[#6366F1] px-2 py-1 rounded-full shadow-lg animate-bounce">
                 TOET! 🔊
               </span>
             </div>
@@ -395,29 +395,29 @@ const CarGame = ({ onUpdate }) => {
           >
             <div className="transform -translate-y-1/2">
               <div className="animate-bounce-horizontal">
-                <div className="bg-white/90 backdrop-blur px-3 py-2 rounded-xl shadow-xl border border-white/50 flex flex-col items-center gap-1 relative">
-                  <span className="text-xs font-bold text-slate-700 whitespace-nowrap">Bestuur mij! 🚗</span>
+                <div className="bg-[#141419]/95 backdrop-blur px-3 py-2 rounded-xl shadow-xl border border-[#2a2a35] flex flex-col items-center gap-1 relative">
+                  <span className="text-xs font-bold text-[#818CF8] whitespace-nowrap">Bestuur mij! 🚗</span>
                   
                   {/* Arrow Keys Visual */}
                   <div className="flex flex-col items-center gap-0.5">
-                    <div className="w-6 h-6 bg-slate-100 rounded border border-slate-300 flex items-center justify-center shadow-sm">
-                      <ArrowUp className="w-3 h-3 text-slate-600" />
+                    <div className="w-6 h-6 bg-[#1e1e26] rounded border border-[#2a2a35] flex items-center justify-center shadow-sm">
+                      <ArrowUp className="w-3 h-3 text-[#818CF8]" />
                     </div>
                     <div className="flex gap-0.5">
-                      <div className="w-6 h-6 bg-slate-100 rounded border border-slate-300 flex items-center justify-center shadow-sm">
-                        <ArrowLeft className="w-3 h-3 text-slate-600" />
+                      <div className="w-6 h-6 bg-[#1e1e26] rounded border border-[#2a2a35] flex items-center justify-center shadow-sm">
+                        <ArrowLeft className="w-3 h-3 text-[#818CF8]" />
                       </div>
-                      <div className="w-6 h-6 bg-slate-100 rounded border border-slate-300 flex items-center justify-center shadow-sm">
-                        <ArrowDown className="w-3 h-3 text-slate-600" />
+                      <div className="w-6 h-6 bg-[#1e1e26] rounded border border-[#2a2a35] flex items-center justify-center shadow-sm">
+                        <ArrowDown className="w-3 h-3 text-[#818CF8]" />
                       </div>
-                      <div className="w-6 h-6 bg-slate-100 rounded border border-slate-300 flex items-center justify-center shadow-sm">
-                        <ArrowRight className="w-3 h-3 text-slate-600" />
+                      <div className="w-6 h-6 bg-[#1e1e26] rounded border border-[#2a2a35] flex items-center justify-center shadow-sm">
+                        <ArrowRight className="w-3 h-3 text-[#818CF8]" />
                       </div>
                     </div>
                   </div>
 
                   {/* Speech Bubble Tail - Pointing Left */}
-                  <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 rotate-45 w-3 h-3 bg-white/90 backdrop-blur border-l border-b border-white/50"></div>
+                  <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 rotate-45 w-3 h-3 bg-[#141419]/95 backdrop-blur border-l border-b border-[#2a2a35]"></div>
                 </div>
               </div>
             </div>
