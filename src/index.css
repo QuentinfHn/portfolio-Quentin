@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 body {
@@ -26,19 +26,32 @@ body {
 }
 
 /* Grain overlay effect */
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -10%); }
+  20% { transform: translate(-15%, 5%); }
+  30% { transform: translate(7%, -25%); }
+  40% { transform: translate(-5%, 25%); }
+  50% { transform: translate(-15%, 10%); }
+  60% { transform: translate(15%, 0%); }
+  70% { transform: translate(0%, 15%); }
+  80% { transform: translate(3%, 35%); }
+  90% { transform: translate(-10%, 10%); }
+}
+
 .grain-overlay {
   position: fixed;
-  top: -50%;
-  left: -50%;
-  right: -50%;
-  bottom: -50%;
-  width: 200%;
-  height: 200%;
+  top: -20%;
+  left: -20%;
+  width: 140%;
+  height: 140%;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
   pointer-events: none;
   z-index: 9999;
   opacity: 0.5;
   animation: grain 8s steps(10) infinite;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 /* Gradient text */
@@ -135,5 +148,20 @@ body {
   width: 2rem;
   height: 1px;
   background: #6366F1;
+}
+
+/* Big text reveal - GPU-composited animation */
+@keyframes textRevealUp {
+  from {
+    transform: translateY(120%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.text-reveal-char {
+  animation: textRevealUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform;
 }
 

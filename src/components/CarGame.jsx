@@ -39,6 +39,7 @@ const CarGame = ({ onUpdate }) => {
   const [lightState, setLightState] = useState('idle'); // 'idle', 'forward', 'reverse', 'braking'
   const [hasMoved, setHasMoved] = useState(false);
   const [isHonking, setIsHonking] = useState(false); // New state for honking
+  const [carVisible, setCarVisible] = useState(true);
   
   // Refs for game loop to avoid closure staleness
   const gameState = useRef({
@@ -108,15 +109,6 @@ const CarGame = ({ onUpdate }) => {
   useEffect(() => {
     if (isMobile) return;
 
-    // Force scroll to top and disable browser scroll restoration
-    if ('scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'manual';
-    }
-    window.scrollTo(0, 0);
-    
-    // Double check scroll position after a brief delay to handle some browser quirks
-    setTimeout(() => window.scrollTo(0, 0), 50);
-
     // Disable smooth scrolling on html to prevent fighting with game loop
     const html = document.documentElement;
     const originalScrollBehavior = html.style.scrollBehavior;
@@ -127,6 +119,17 @@ const CarGame = ({ onUpdate }) => {
         e.preventDefault();
         gameState.current.keys[e.key] = true;
         setHasMoved(true);
+        setCarVisible(prev => {
+          if (!prev) {
+            // Reposition car at center of current viewport when reappearing
+            gameState.current.x = window.innerWidth / 2;
+            gameState.current.y = window.scrollY + window.innerHeight * 0.6;
+            gameState.current.velocity = 0;
+            gameState.current.rotation = 0;
+            gameState.current.driftFactor = 0;
+          }
+          return true;
+        });
         
         if (e.key === ' ') {
             setIsHonking(true);
@@ -139,6 +142,19 @@ const CarGame = ({ onUpdate }) => {
         setIsHonking(false);
       }
     };
+
+    // Hide car on manual scroll (wheel/trackpad)
+    let scrollTimeout;
+    const handleWheel = () => {
+      // Only hide if the car is not actively being driven
+      const state = gameState.current;
+      const anyKey = state.keys['ArrowUp'] || state.keys['ArrowDown'] || state.keys['w'] || state.keys['s'] || state.keys['W'] || state.keys['S'];
+      if (!anyKey && Math.abs(state.velocity) < 1) {
+        setCarVisible(false);
+      }
+      clearTimeout(scrollTimeout);
+    };
+    window.addEventListener('wheel', handleWheel, { passive: true });
 
     window.addEventListener('keydown', handleKeyDown, { passive: false });
     window.addEventListener('keyup', handleKeyUp);
@@ -219,38 +235,25 @@ const CarGame = ({ onUpdate }) => {
       if (state.y < 0) { state.y = 0; }
       if (state.y > maxDocHeight - CAR_HEIGHT) { state.y = maxDocHeight - CAR_HEIGHT; }
 
-      // Scroll Logic (Camera Follow)
-      // Only follow if the car is moving significantly to allow manual scrolling
-      if (Math.abs(state.velocity) > 0.5) {
+      // Scroll Logic - Direct camera follow
+      // Only scroll the page when the car is actively being driven and visible
+      if (Math.abs(state.velocity) > 0.5 && carRef.current && carRef.current.style.opacity !== '0') {
         const screenY = state.y - window.scrollY;
-        const dy = -Math.cos(state.rotation * Math.PI / 180) * state.velocity;
-        
-        // Smaller margins as requested (15% instead of 30%)
-        const MARGIN_TOP = window.innerHeight * 0.15; 
-        const MARGIN_BOTTOM = window.innerHeight * 0.85; 
+        const MARGIN_TOP = window.innerHeight * 0.2;
+        const MARGIN_BOTTOM = window.innerHeight * 0.8;
 
-        if (screenY < MARGIN_TOP) {
-          const dist = MARGIN_TOP - screenY;
-          const correction = Math.min(dist * 0.1, 15);
-          let scrollAmount = dy - correction;
-          
-          // Only scroll upward when truly needed
-          if (scrollAmount < 0) {
-            const nextScroll = Math.max(window.scrollY + scrollAmount, 0);
-            window.scrollTo(0, nextScroll);
-          }
-        } else if (screenY > MARGIN_BOTTOM) {
-          const dist = screenY - MARGIN_BOTTOM;
-          const correction = Math.min(dist * 0.1, 15);
-          let scrollAmount = dy + correction;
+        if (screenY < MARGIN_TOP || screenY > MARGIN_BOTTOM) {
+          const targetScreenY = screenY < MARGIN_TOP ? MARGIN_TOP : MARGIN_BOTTOM;
+          let targetScroll = state.y - targetScreenY;
 
-          // Only scroll downward when we actually need to push the car back into view
-          if (scrollAmount > 0) {
-            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-            const nextScroll = Math.min(window.scrollY + scrollAmount, maxScroll);
-            window.scrollTo(0, nextScroll);
-          }
+          const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+          targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
+
+          window.scrollTo(0, targetScroll);
         }
+      } else {
+        // Car is idle — let it follow the manual scroll so it stays on screen
+        state.y = window.scrollY + (state.y - window.scrollY);
       }
 
       // Call onUpdate callback
@@ -299,6 +302,8 @@ const CarGame = ({ onUpdate }) => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('wheel', handleWheel);
+      clearTimeout(scrollTimeout);
       cancelAnimationFrame(requestRef.current);
       html.style.scrollBehavior = originalScrollBehavior;
     };
@@ -309,7 +314,9 @@ const CarGame = ({ onUpdate }) => {
   return (
     <>
       {/* The Car - Fixed position for smooth movement independent of scroll */}
-      <div className="fixed inset-0 z-[100] pointer-events-none overflow-hidden h-full w-full">
+      <div className="fixed inset-0 z-[100] pointer-events-none overflow-hidden h-full w-full"
+        style={{ opacity: carVisible ? 1 : 0, transition: 'opacity 0.3s ease' }}
+      >
         <div 
           ref={carRef}
           className="absolute shadow-2xl pointer-events-none"
@@ -385,7 +392,7 @@ const CarGame = ({ onUpdate }) => {
       </div>
 
       {/* Control Hint - Positioned absolutely to stick to the page */}
-      {!hasMoved && (
+      {!hasMoved && carVisible && (
         <div className="absolute inset-0 z-[101] pointer-events-none overflow-hidden h-full w-full">
           <div 
             className="absolute left-0 top-0 pointer-events-none"

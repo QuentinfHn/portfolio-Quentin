@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
-import { ArrowDown, Github, Linkedin, Mail, ExternalLink, X, Car, ArrowUpRight, MapPin, Briefcase, GraduationCap } from 'lucide-react';
+import { ArrowDown, Github, Linkedin, Mail, X, ArrowUpRight, MapPin, Briefcase, GraduationCap } from 'lucide-react';
 import CarGame from './components/CarGame';
 
 // --- Image Loading Logic ---
@@ -108,19 +108,17 @@ const Marquee = ({ text, reverse = false }) => {
   );
 };
 
-// --- Big Text Reveal ---
+// --- Big Text Reveal (CSS-based for zero main-thread jank) ---
 const BigTextReveal = ({ text, className = "" }) => (
   <div className={`flex overflow-hidden ${className}`}>
     {text.split('').map((char, i) => (
-      <motion.span
+      <span
         key={i}
-        initial={{ y: "120%" }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.9, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] }}
-        className="inline-block"
+        className="inline-block text-reveal-char"
+        style={{ animationDelay: `${i * 0.04}s` }}
       >
         {char === " " ? "\u00A0" : char}
-      </motion.span>
+      </span>
     ))}
   </div>
 );
@@ -144,7 +142,7 @@ const ProjectCard = ({ project, onClick, index }) => (
       visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
     }}
     onClick={() => onClick(project)}
-    className={`group relative bg-surface rounded-2xl border border-surface-border hover:border-lime-400/30 cursor-pointer overflow-hidden transition-all duration-500 ${
+    className={`group relative bg-surface rounded-2xl border border-surface-border hover:border-accent-400/30 cursor-pointer overflow-hidden transition-all duration-500 ${
       index === 0 ? 'md:col-span-2 md:row-span-2' : ''
     }`}
   >
@@ -192,15 +190,26 @@ const ProjectCard = ({ project, onClick, index }) => (
 
 // --- Project Modal ---
 const ProjectModal = ({ project, onClose }) => {
+  useEffect(() => {
+    const handleEscape = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleEscape);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = '';
+    };
+  }, [onClose]);
+
   if (!project) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8" role="dialog" aria-modal="true" aria-label={project.title}>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
         className="absolute inset-0 bg-dark-950/80 backdrop-blur-md"
+        aria-hidden="true"
       />
       <motion.div
         initial={{ opacity: 0, y: 40, scale: 0.96 }}
@@ -211,6 +220,7 @@ const ProjectModal = ({ project, onClose }) => {
       >
         <button
           onClick={onClose}
+          aria-label="Sluiten"
           className="absolute top-4 right-4 p-2 bg-surface-light rounded-full hover:bg-surface-border transition-colors z-10 border border-surface-border"
         >
           <X className="w-5 h-5 text-muted" />
@@ -269,7 +279,7 @@ const ProjectModal = ({ project, onClose }) => {
 };
 
 // --- Timeline Item ---
-const TimelineItem = ({ year, title, company, description, icon: Icon }) => (
+const TimelineItem = ({ year, title, company, description }) => (
   <motion.div
     variants={{
       hidden: { opacity: 0, x: -20 },
@@ -391,12 +401,19 @@ function App() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
+  const [navScrolled, setNavScrolled] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => setNavScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
@@ -439,9 +456,14 @@ function App() {
         style={{ scaleX }}
       />
 
+      {/* Skip to content */}
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[60] focus:px-4 focus:py-2 focus:bg-accent-500 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium">
+        Ga naar inhoud
+      </a>
+
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
-        <div className="pointer-events-auto flex items-center justify-between px-6 md:px-12 py-5">
+      <nav className="fixed top-0 left-0 right-0 z-50 pointer-events-none" role="navigation" aria-label="Hoofdnavigatie">
+        <div className={`pointer-events-auto flex items-center justify-between px-6 md:px-12 py-5 transition-all duration-300 ${navScrolled ? 'bg-dark-900/80 backdrop-blur-lg border-b border-surface-border' : ''}`}>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-accent-500 rounded-lg flex items-center justify-center">
               <span className="font-display font-bold text-white text-sm">Q</span>
@@ -451,7 +473,7 @@ function App() {
           
           <div className="flex items-center gap-6">
             <span className="text-xs text-muted font-medium hidden md:flex items-center gap-2">
-              <MapPin className="w-3 h-3" /> Utrecht, NL — {currentTime}
+              <MapPin className="w-3 h-3" /> Reeuwijk, NL — {currentTime}
             </span>
             <div className="w-px h-4 bg-surface-border hidden md:block" />
             <a href="mailto:hello@quentinfabrie.nl" className="text-sm font-medium text-muted hover:text-accent-400 transition-colors duration-300">
@@ -462,6 +484,7 @@ function App() {
       </nav>
 
       {/* Hero */}
+      <main id="main">
       <Section className="min-h-screen flex flex-col justify-center px-6 md:px-12 pt-24">
         <div className="max-w-7xl mx-auto w-full">
           <motion.div
@@ -569,7 +592,7 @@ function App() {
                 description="Videospecialist bij Ledlease BV in Bodegraven."
               />
               <TimelineItem
-                year="2025 — Heden"
+                year="2025 — 2026"
                 title="Stagiair Quality & Risk"
                 company="Axians NL"
                 description="Stagiair Quality & Risk bij Axians in Capelle aan den IJssel."
@@ -689,13 +712,13 @@ function App() {
               </a>
             </Reveal>
             <Reveal delay={0.4}>
-              <a href="#" className="group flex items-center gap-3 px-6 py-3 bg-surface border border-surface-border text-white rounded-xl font-display font-medium text-sm hover:border-accent-400/30 transition-all duration-300">
+              <a href="https://github.com/QuentinfHn" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 px-6 py-3 bg-surface border border-surface-border text-white rounded-xl font-display font-medium text-sm hover:border-accent-400/30 transition-all duration-300">
                 <Github className="w-4 h-4" />
                 GitHub
               </a>
             </Reveal>
             <Reveal delay={0.5}>
-              <a href="#" className="group flex items-center gap-3 px-6 py-3 bg-surface border border-surface-border text-white rounded-xl font-display font-medium text-sm hover:border-accent-400/30 transition-all duration-300">
+              <a href="https://www.linkedin.com/in/quentin-fabrie-5a330025b" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 px-6 py-3 bg-surface border border-surface-border text-white rounded-xl font-display font-medium text-sm hover:border-accent-400/30 transition-all duration-300">
                 <Linkedin className="w-4 h-4" />
                 LinkedIn
               </a>
@@ -704,6 +727,8 @@ function App() {
         </div>
       </Section>
 
+      </main>
+
       {/* Footer */}
       <footer className="border-t border-surface-border">
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -711,11 +736,11 @@ function App() {
             <div className="w-6 h-6 bg-accent-500 rounded-md flex items-center justify-center">
               <span className="font-display font-bold text-white text-[10px]">Q</span>
             </div>
-            <span className="text-sm text-muted">&copy; 2025 Quentin Fabrie</span>
+            <span className="text-sm text-muted">&copy; 2026 Quentin Fabrie</span>
           </div>
-          <div className="flex items-center gap-6">
-            <a href="#" className="text-sm text-muted hover:text-accent-400 transition-colors">GitHub</a>
-            <a href="#" className="text-sm text-muted hover:text-accent-400 transition-colors">LinkedIn</a>
+            <div className="flex items-center gap-6">
+            <a href="https://github.com/QuentinfHn" target="_blank" rel="noopener noreferrer" className="text-sm text-muted hover:text-accent-400 transition-colors">GitHub</a>
+            <a href="https://www.linkedin.com/in/quentin-fabrie-5a330025b" target="_blank" rel="noopener noreferrer" className="text-sm text-muted hover:text-accent-400 transition-colors">LinkedIn</a>
             <a href="mailto:hello@quentinfabrie.nl" className="text-sm text-muted hover:text-accent-400 transition-colors">Email</a>
           </div>
         </div>
