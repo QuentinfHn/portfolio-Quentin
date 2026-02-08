@@ -115,17 +115,6 @@ const BigTextReveal = ({ text, className = "" }) => (
   </div>
 );
 
-// --- Status Indicator ---
-const StatusIndicator = () => (
-  <div className="flex items-center gap-2">
-    <div className="relative">
-      <div className="w-2 h-2 bg-accent-400 rounded-full" />
-      <div className="absolute inset-0 w-2 h-2 bg-accent-400 rounded-full animate-ping opacity-75" />
-    </div>
-    <span className="text-sm text-muted font-medium">Beschikbaar voor projecten</span>
-  </div>
-);
-
 // --- Project Card (Bento Style) ---
 const ProjectCard = ({ project, onClick, index }) => (
   <motion.div
@@ -458,15 +447,6 @@ function App() {
       <main id="main">
       <Section className="min-h-[70vh] flex flex-col justify-center px-6 md:px-12 pt-20 pb-12">
         <div className="max-w-7xl mx-auto w-full">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-8"
-          >
-            <StatusIndicator />
-          </motion.div>
-
           <div className="mb-6">
             <BigTextReveal
               text="Creative"
@@ -503,7 +483,7 @@ function App() {
       </Section>
 
       {/* Marquee Divider */}
-      <Marquee text="AV SPECIALIST • DEVELOPER • VIDEOTECH" />
+      <Marquee text="Technisch Bedrijfskundige • DEVELOPER • VIDEOTECH" />
 
       {/* About */}
       <Section className="py-16 md:py-24 px-6 md:px-12">
@@ -629,7 +609,7 @@ function App() {
         </div>
       </Section>
 
-      <Marquee text="FOTO'S • WERKZAAMHEDEN • BEHIND THE SCENES" reverse />
+      <Marquee text="FOTO'S • WERKZAAMHEDEN • Projecten" reverse />
 
       {/* Work Gallery */}
       <Section className="py-12 md:py-16 !px-0 !max-w-none">
